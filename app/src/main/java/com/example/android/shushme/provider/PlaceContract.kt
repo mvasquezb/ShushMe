@@ -1,4 +1,4 @@
-package com.example.android.shushme.provider;
+package com.example.android.shushme.provider
 
 /*
 * Copyright (C) 2017 The Android Open Source Project
@@ -16,28 +16,29 @@ package com.example.android.shushme.provider;
 * limitations under the License.
 */
 
-import android.net.Uri;
-import android.provider.BaseColumns;
+import android.net.Uri
+import android.provider.BaseColumns
 
-public class PlaceContract {
+object PlaceContract {
 
     // The authority, which is how your code knows which Content Provider to access
-    public static final String AUTHORITY = "com.example.android.shushme";
+    val AUTHORITY = "com.example.android.shushme"
 
     // The base content URI = "content://" + <authority>
-    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
+    val BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY)
 
     // Define the possible paths for accessing data in this contract
     // This is the path for the "places" directory
-    public static final String PATH_PLACES = "places";
+    val PATH_PLACES = "places"
 
-    public static final class PlaceEntry implements BaseColumns {
+    class PlaceEntry : BaseColumns {
+        companion object {
 
-        // TaskEntry content URI = base content URI + path
-        public static final Uri CONTENT_URI =
-                BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLACES).build();
+            // TaskEntry content URI = base content URI + path
+            val CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLACES).build()
 
-        public static final String TABLE_NAME = "places";
-        public static final String COLUMN_PLACE_ID = "placeID";
+            val TABLE_NAME = "places"
+            val COLUMN_PLACE_ID = "placeID"
+        }
     }
 }
