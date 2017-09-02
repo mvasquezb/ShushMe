@@ -25,7 +25,7 @@ object PlaceContract {
     val AUTHORITY = "com.example.android.shushme"
 
     // The base content URI = "content://" + <authority>
-    val BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY)
+    val BASE_CONTENT_URI = Uri.parse("content://$AUTHORITY")
 
     // Define the possible paths for accessing data in this contract
     // This is the path for the "places" directory

@@ -27,12 +27,11 @@ class PlaceDbHelper(context: Context?)
     : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     override fun onCreate(sqLiteDatabase: SQLiteDatabase) {
-
         // Create a table to hold the places data
-        val SQL_CREATE_PLACES_TABLE = "CREATE TABLE " + PlaceEntry.TABLE_NAME + " (" +
-                BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                PlaceEntry.COLUMN_PLACE_ID + " TEXT NOT NULL, " +
-                "UNIQUE (" + PlaceEntry.COLUMN_PLACE_ID + ") ON CONFLICT REPLACE" +
+        val SQL_CREATE_PLACES_TABLE = "CREATE TABLE ${PlaceEntry.TABLE_NAME} (" +
+                "${BaseColumns._ID} INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "${PlaceEntry.COLUMN_PLACE_ID} TEXT NOT NULL, " +
+                "UNIQUE (${PlaceEntry.COLUMN_PLACE_ID}) ON CONFLICT REPLACE" +
                 "); "
 
         sqLiteDatabase.execSQL(SQL_CREATE_PLACES_TABLE)
@@ -40,7 +39,7 @@ class PlaceDbHelper(context: Context?)
 
     override fun onUpgrade(sqLiteDatabase: SQLiteDatabase, i: Int, i1: Int) {
         // For now simply drop the table and create a new one.
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + PlaceEntry.TABLE_NAME)
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS ${PlaceEntry.TABLE_NAME}")
         onCreate(sqLiteDatabase)
     }
 

@@ -60,11 +60,11 @@ class PlaceContentProvider : ContentProvider() {
                 if (id > 0) {
                     returnUri = ContentUris.withAppendedId(PlaceContract.PlaceEntry.CONTENT_URI, id)
                 } else {
-                    throw android.database.SQLException("Failed to insert row into " + uri)
+                    throw android.database.SQLException("Failed to insert row into $uri")
                 }
             }
         // Default case throws an UnsupportedOperationException
-            else -> throw UnsupportedOperationException("Unknown uri: " + uri)
+            else -> throw UnsupportedOperationException("Unknown uri: $uri")
         }
 
         // Notify the resolver if the uri has been changed, and return the newly inserted URI
@@ -112,7 +112,7 @@ class PlaceContentProvider : ContentProvider() {
                     selectionArgs, null, null,
                     sortOrder)
         // Default exception
-            else -> throw UnsupportedOperationException("Unknown uri: " + uri)
+            else -> throw UnsupportedOperationException("Unknown uri: $uri")
         }
 
         // Set a notification URI on the Cursor and return that Cursor
@@ -147,7 +147,7 @@ class PlaceContentProvider : ContentProvider() {
                 // Use selections/selectionArgs to filter for this ID
                 placesDeleted = db.delete(PlaceEntry.TABLE_NAME, "_id=?", arrayOf(id))
             }
-            else -> throw UnsupportedOperationException("Unknown uri: " + uri)
+            else -> throw UnsupportedOperationException("Unknown uri: $uri")
         }
         // Notify the resolver of a change and return the number of items deleted
         if (placesDeleted != 0) {
@@ -185,7 +185,7 @@ class PlaceContentProvider : ContentProvider() {
                 placesUpdated = db.update(PlaceEntry.TABLE_NAME, values, "_id=?", arrayOf(id))
             }
         // Default exception
-            else -> throw UnsupportedOperationException("Unknown uri: " + uri)
+            else -> throw UnsupportedOperationException("Unknown uri: $uri")
         }
 
         // Notify the resolver of a change and return the number of items updated
@@ -220,7 +220,7 @@ class PlaceContentProvider : ContentProvider() {
             val uriMatcher = UriMatcher(UriMatcher.NO_MATCH)
             // Add URI matches
             uriMatcher.addURI(PlaceContract.AUTHORITY, PlaceContract.PATH_PLACES, PLACES)
-            uriMatcher.addURI(PlaceContract.AUTHORITY, PlaceContract.PATH_PLACES + "/#", PLACE_WITH_ID)
+            uriMatcher.addURI(PlaceContract.AUTHORITY, "${PlaceContract.PATH_PLACES}/#", PLACE_WITH_ID)
             return uriMatcher
         }
     }
