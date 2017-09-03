@@ -22,11 +22,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.google.android.gms.location.places.PlaceBuffer
 
-class PlaceListAdapter(context: Context)
-    : RecyclerView.Adapter<PlaceListAdapter.PlaceViewHolder>() {
+class PlaceListAdapter(
+        context: Context
+) : RecyclerView.Adapter<PlaceListAdapter.PlaceViewHolder>() {
 
     private val mContext = context
+    private var mPlaces: PlaceBuffer? = null
+
+    constructor(context: Context, places: PlaceBuffer?) : this(context) {
+        mPlaces = places
+    }
 
     /**
      * Called when RecyclerView needs a new ViewHolder of the given type to represent an item
@@ -52,9 +59,13 @@ class PlaceListAdapter(context: Context)
      * @param position The current position that needs to be loaded with data
      */
     override fun onBindViewHolder(holder: PlaceViewHolder, position: Int) {
-
+        val places = mPlaces ?: return
+        if (places.count == 0) {
+            return
+        }
+        holder.nameTextView.text = places[position].name
+        holder.addressTextView.text = places[position].address
     }
-
 
     /**
      * Returns the number of items in the cursor
@@ -62,16 +73,21 @@ class PlaceListAdapter(context: Context)
      * @return Number of items in the cursor, or 0 if null
      */
     override fun getItemCount(): Int {
-        return 0
+        return mPlaces?.count ?: 0
+    }
+
+    fun swapPlaces(places: PlaceBuffer?) {
+        mPlaces = places
+        if (mPlaces != null) {
+            notifyDataSetChanged()
+        }
     }
 
     /**
      * PlaceViewHolder class for the recycler view item
      */
     inner class PlaceViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
         var nameTextView: TextView = itemView.findViewById(R.id.name_text_view) as TextView
         var addressTextView: TextView = itemView.findViewById(R.id.address_text_view) as TextView
-
     }
 }
