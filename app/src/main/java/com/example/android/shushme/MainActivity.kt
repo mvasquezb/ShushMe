@@ -16,6 +16,9 @@ package com.example.android.shushme
 * limitations under the License.
 */
 
+import android.app.Activity
+import android.content.ContentValues
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
@@ -26,10 +29,14 @@ import android.util.Log
 import android.view.View
 import android.widget.CheckBox
 import android.widget.Toast
+import com.example.android.shushme.provider.PlaceContract
 import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException
+import com.google.android.gms.common.GooglePlayServicesRepairableException
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.places.Places
+import com.google.android.gms.location.places.ui.PlacePicker
 
 class MainActivity :
         AppCompatActivity(),
@@ -40,6 +47,7 @@ class MainActivity :
         // Constants
         val TAG = MainActivity::class.java.simpleName
         val PERMISSION_REQUEST_FINE_LOCATION = 2923
+        val PLACE_PICKER_REQUEST = 35352
     }
 
     // Member variables
@@ -118,12 +126,42 @@ class MainActivity :
                     getString(R.string.location_permissions_required),
                     Toast.LENGTH_SHORT
             ).show()
-        } else {
-            Toast.makeText(
-                    this,
-                    getString(R.string.location_permissions_granted),
-                    Toast.LENGTH_SHORT
-            ).show()
+            return
+        }
+
+        try {
+            val pickerIntent = PlacePicker.IntentBuilder().build(this)
+            startActivityForResult(pickerIntent, PLACE_PICKER_REQUEST)
+        } catch (e: GooglePlayServicesRepairableException) {
+            Log.e(TAG, "GooglePlayServices not available: ${e.message}")
+        } catch (e: GooglePlayServicesNotAvailableException) {
+            Log.e(TAG, "GooglePlayServices not available: ${e.message}")
+        } catch (e: Exception) {
+            Log.e(TAG, "PlacePicker exception: ${e.message}")
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            PLACE_PICKER_REQUEST -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    val place = PlacePicker.getPlace(this, data)
+                    if (place == null) {
+                        Log.i(TAG, "No place selected")
+                        return
+                    }
+                    // Get place information
+                    val placeName = place.name
+                    val placeAddress = place.address
+                    val placeId = place.id
+                    Log.i(TAG, "Place name: $placeName. Place Address: $placeAddress")
+
+                    // Insert place information into db
+                    val values = ContentValues()
+                    values.put(PlaceContract.PlaceEntry.COLUMN_PLACE_ID, placeId)
+                    contentResolver.insert(PlaceContract.PlaceEntry.CONTENT_URI, values)
+                }
+            }
         }
     }
 }
