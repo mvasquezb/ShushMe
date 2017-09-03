@@ -96,6 +96,7 @@ class MainActivity :
 
     override fun onConnected(bundle: Bundle?) {
         Log.i(TAG, "API Client Connnection Successful")
+        refreshPlacesData()
     }
 
     override fun onConnectionFailed(result: ConnectionResult) {
@@ -107,6 +108,32 @@ class MainActivity :
         Log.e(TAG, "API Client Connection Failed")
     }
 
+    /**
+     * Refresh places data from server
+     */
+    fun refreshPlacesData() {
+        val data = contentResolver.query(
+                PlaceContract.PlaceEntry.CONTENT_URI,
+                null, null, null, null
+        )
+        if (data == null || data.count == 0) {
+            return
+        }
+        val placeIds = mutableListOf<String>()
+        while (data.moveToNext()) {
+            placeIds.add(data.getString(
+                    data.getColumnIndex(PlaceContract.PlaceEntry.COLUMN_PLACE_ID)
+            ))
+        }
+        val placesResult = Places.GeoDataApi.getPlaceById(mGoogleClient, *placeIds.toTypedArray())
+        placesResult.setResultCallback { placeBuffer ->
+            mAdapter.swapPlaces(placeBuffer)
+        }
+    }
+
+    /**
+     * Location permission checkbox click callback
+     */
     fun onLocationPermissionClicked(view: View) {
         ActivityCompat.requestPermissions(
                 this,
@@ -115,6 +142,9 @@ class MainActivity :
         )
     }
 
+    /**
+     * Add location button click callback
+     */
     fun onAddPlaceButtonClicked(view: View) {
         val locationPermissionStatus = ActivityCompat.checkSelfPermission(
                 this,
@@ -160,6 +190,9 @@ class MainActivity :
                     val values = ContentValues()
                     values.put(PlaceContract.PlaceEntry.COLUMN_PLACE_ID, placeId)
                     contentResolver.insert(PlaceContract.PlaceEntry.CONTENT_URI, values)
+
+                    // Update place list
+                    refreshPlacesData()
                 }
             }
         }
