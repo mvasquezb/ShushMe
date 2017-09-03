@@ -16,16 +16,36 @@ package com.example.android.shushme
 * limitations under the License.
 */
 
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
+import android.view.View
+import android.widget.CheckBox
+import android.widget.Toast
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.places.Places
 
-class MainActivity : AppCompatActivity() {
+class MainActivity :
+        AppCompatActivity(),
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
+
+    companion object {
+        // Constants
+        val TAG = MainActivity::class.java.simpleName
+        val PERMISSION_REQUEST_FINE_LOCATION = 2923
+    }
 
     // Member variables
     private lateinit var mAdapter: PlaceListAdapter
     private lateinit var mRecyclerView: RecyclerView
+    private lateinit var mGoogleClient: GoogleApiClient
 
     /**
      * Called when the activity is starting
@@ -42,11 +62,68 @@ class MainActivity : AppCompatActivity() {
         mAdapter = PlaceListAdapter(this)
         mRecyclerView.adapter = mAdapter
 
+        mGoogleClient = GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .addApi(Places.GEO_DATA_API)
+                .enableAutoManage(this, this)
+                .build()
     }
 
-    companion object {
-        // Constants
-        val TAG = MainActivity::class.java.simpleName
+    override fun onResume() {
+        super.onResume()
+        val locationPermissionCheckbox = findViewById(R.id.location_permission_checkbox) as CheckBox
+        val locationPermissionStatus = ActivityCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+        )
+        if (locationPermissionStatus != PackageManager.PERMISSION_GRANTED) {
+            locationPermissionCheckbox.isChecked = false
+        } else {
+            locationPermissionCheckbox.isChecked = true
+            locationPermissionCheckbox.isEnabled = false
+        }
     }
 
+    override fun onConnected(bundle: Bundle?) {
+        Log.i(TAG, "API Client Connnection Successful")
+    }
+
+    override fun onConnectionFailed(result: ConnectionResult) {
+        Log.i(TAG, "API Client Connection Suspended")
+    }
+
+
+    override fun onConnectionSuspended(cause: Int) {
+        Log.e(TAG, "API Client Connection Failed")
+    }
+
+    fun onLocationPermissionClicked(view: View) {
+        ActivityCompat.requestPermissions(
+                this,
+                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+                PERMISSION_REQUEST_FINE_LOCATION
+        )
+    }
+
+    fun onAddPlaceButtonClicked(view: View) {
+        val locationPermissionStatus = ActivityCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+        )
+        if (locationPermissionStatus != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(
+                    this,
+                    getString(R.string.location_permissions_required),
+                    Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            Toast.makeText(
+                    this,
+                    getString(R.string.location_permissions_granted),
+                    Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
 }

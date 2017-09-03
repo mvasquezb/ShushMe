@@ -63,7 +63,7 @@ class PlaceContentProvider : ContentProvider() {
                     throw android.database.SQLException("Failed to insert row into $uri")
                 }
             }
-        // Default case throws an UnsupportedOperationException
+            // Default case throws an UnsupportedOperationException
             else -> throw UnsupportedOperationException("Unknown uri: $uri")
         }
 
@@ -140,7 +140,7 @@ class PlaceContentProvider : ContentProvider() {
         // Keep track of the number of deleted places
         val placesDeleted: Int // starts as 0
         when (match) {
-        // Handle the single item case, recognized by the ID included in the URI path
+            // Handle the single item case, recognized by the ID included in the URI path
             PLACE_WITH_ID -> {
                 // Get the place ID from the URI path
                 val id = uri.pathSegments[1]
@@ -197,13 +197,11 @@ class PlaceContentProvider : ContentProvider() {
         return placesUpdated
     }
 
-
     override fun getType(uri: Uri): String? {
-        throw UnsupportedOperationException("Not yet implemented")
+        TODO("Not yet implemented")
     }
 
     companion object {
-
         // Define final integer constants for the directory of places and a single item.
         // It's convention to use 100, 200, 300, etc for directories,
         // and related ints (101, 102, ..) for items in that directory.
