@@ -25,9 +25,12 @@ import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.text.Html
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.View
 import android.widget.CheckBox
+import android.widget.TextView
 import android.widget.Toast
 import com.example.android.shushme.provider.PlaceContract
 import com.google.android.gms.common.ConnectionResult
@@ -69,6 +72,10 @@ class MainActivity :
         mRecyclerView.layoutManager = LinearLayoutManager(this)
         mAdapter = PlaceListAdapter(this)
         mRecyclerView.adapter = mAdapter
+
+        // Setup privacy link
+        val privacyLink = findViewById(R.id.privacy_link) as TextView
+        privacyLink.movementMethod = LinkMovementMethod.getInstance()
 
         mGoogleClient = GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
