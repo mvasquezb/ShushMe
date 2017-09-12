@@ -11,4 +11,5 @@
     <string name="google_privacy_link">
         <a href="http://www.google.com/policies/privacy">Privacy Policy</a>
     </string>
+    <string name="pref_enable_geofences_key">"enable_geofences"</string>
 </resources>
