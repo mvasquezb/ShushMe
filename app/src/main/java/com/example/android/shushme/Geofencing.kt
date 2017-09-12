@@ -52,41 +52,53 @@ class Geofencing(context: Context, googleApiClient: GoogleApiClient) : ResultCal
     }
 
     private fun getGeofencingRequest(): GeofencingRequest {
-        return GeofencingRequest.Builder()
+        Log.e(TAG, "Building GeofencingRequest")
+        val builder = GeofencingRequest.Builder()
                 .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
                 .addGeofences(mGeofenceList)
-                .build()
+        return builder.build()
     }
 
     private fun getGeofencingIntent(): PendingIntent {
         if (mGeofencePendingIntent == null) {
             val broadcastIntent = Intent(mContext, GeofenceBroadcastReceiver::class.java)
             mGeofencePendingIntent = PendingIntent.getBroadcast(
-                    mContext, RC_GEOFENCE_BROADCAST, broadcastIntent, PendingIntent.FLAG_UPDATE_CURRENT
+                    mContext,
+                    RC_GEOFENCE_BROADCAST,
+                    broadcastIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT
             )
         }
         return mGeofencePendingIntent!!
     }
 
     fun registerAllGeofences() {
-        if (mGoogleApiClient == null || !mGoogleApiClient.isConnected) {
+        if (!mGoogleApiClient.isConnected) {
             return
         }
-        LocationServices.GeofencingApi.addGeofences(
-                mGoogleApiClient,
-                getGeofencingRequest(),
-                getGeofencingIntent()
-        ).setResultCallback(this)
+        try {
+            LocationServices.GeofencingApi.addGeofences(
+                    mGoogleApiClient,
+                    getGeofencingRequest(),
+                    getGeofencingIntent()
+            ).setResultCallback(this)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     fun unregisterAllGeofences() {
-        if (mGoogleApiClient == null || !mGoogleApiClient.isConnected) {
+        if (!mGoogleApiClient.isConnected) {
             return
         }
-        LocationServices.GeofencingApi.removeGeofences(
-                mGoogleApiClient,
-                getGeofencingIntent()
-        ).setResultCallback(this)
+        try {
+            LocationServices.GeofencingApi.removeGeofences(
+                    mGoogleApiClient,
+                    getGeofencingIntent()
+            ).setResultCallback(this)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     override fun onResult(status: Status) {
