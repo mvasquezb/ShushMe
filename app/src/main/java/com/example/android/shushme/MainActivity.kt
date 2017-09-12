@@ -29,6 +29,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SwitchCompat
+import android.support.v7.widget.helper.ItemTouchHelper
 import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
@@ -94,12 +95,10 @@ class MainActivity :
             } else {
                 mGeofencing.unregisterAllGeofences()
             }
-            Log.e(TAG, "Setting geofences preference")
             getPreferences(Context.MODE_PRIVATE).edit().putBoolean(
                     getString(R.string.pref_enable_geofences_key),
                     checked
             ).apply()
-            Log.e(TAG, "Done setting geofences preference")
         }
 
         // Setup privacy link
@@ -172,12 +171,15 @@ class MainActivity :
                     data.getColumnIndex(PlaceContract.PlaceEntry.COLUMN_PLACE_ID)
             ))
         }
+        data.close()
         val placesResult = Places.GeoDataApi.getPlaceById(mGoogleClient, *placeIds.toTypedArray())
         placesResult.setResultCallback { placeBuffer ->
             mAdapter.swapPlaces(placeBuffer)
             mGeofencing.updateGeofencesList(placeBuffer)
             if (mGeofencesEnabled) {
                 mGeofencing.registerAllGeofences()
+            } else {
+                mGeofencing.unregisterAllGeofences()
             }
         }
     }
