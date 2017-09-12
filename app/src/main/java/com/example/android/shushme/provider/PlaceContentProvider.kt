@@ -19,10 +19,8 @@ package com.example.android.shushme.provider
 import android.content.ContentProvider
 import android.content.ContentUris
 import android.content.ContentValues
-import android.content.Context
 import android.content.UriMatcher
 import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 
 import com.example.android.shushme.provider.PlaceContract.PlaceEntry
@@ -127,13 +125,13 @@ class PlaceContentProvider : ContentProvider() {
 
      * @param uri
      * *
-     * @param selection
+     * @param where
      * *
      * @param selectionArgs
      * *
      * @return number of rows affected
      */
-    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
+    override fun delete(uri: Uri, where: String?, selectionArgs: Array<String>?): Int {
         // Get access to the database and write URI matching code to recognize a single item
         val db = mPlaceDbHelper.writableDatabase
         val match = sUriMatcher.match(uri)
@@ -146,6 +144,9 @@ class PlaceContentProvider : ContentProvider() {
                 val id = uri.pathSegments[1]
                 // Use selections/selectionArgs to filter for this ID
                 placesDeleted = db.delete(PlaceEntry.TABLE_NAME, "_id=?", arrayOf(id))
+            }
+            PLACES -> {
+                placesDeleted = db.delete(PlaceEntry.TABLE_NAME, "$where=?", selectionArgs)
             }
             else -> throw UnsupportedOperationException("Unknown uri: $uri")
         }
@@ -210,7 +211,7 @@ class PlaceContentProvider : ContentProvider() {
 
         // Declare a static variable for the Uri matcher that you construct
         private val sUriMatcher = buildUriMatcher()
-        private val TAG = PlaceContentProvider::class.java.name
+        private val TAG = PlaceContentProvider::class.java.simpleName
 
         // Define a static buildUriMatcher method that associates URI's with their int match
         fun buildUriMatcher(): UriMatcher {
