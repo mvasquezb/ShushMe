@@ -12,4 +12,8 @@
         <a href="http://www.google.com/policies/privacy">Privacy Policy</a>
     </string>
     <string name="pref_enable_geofences_key">"enable_geofences"</string>
+    <string name="ringer_permissions">Ringer Permissions</string>
+    <string name="silent_mode_activated">Silent mode activated</string>
+    <string name="touch_to_relaunch">Touch to relaunch</string>
+    <string name="back_to_normal">Back to normal</string>
 </resources>
