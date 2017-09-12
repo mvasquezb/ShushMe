@@ -18,18 +18,22 @@ package com.example.android.shushme
 
 import android.app.Activity
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.SwitchCompat
 import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.View
 import android.widget.CheckBox
+import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import com.example.android.shushme.provider.PlaceContract
@@ -57,6 +61,8 @@ class MainActivity :
     private lateinit var mAdapter: PlaceListAdapter
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var mGoogleClient: GoogleApiClient
+    private lateinit var mGeofencing: Geofencing
+    private var mGeofencesEnabled: Boolean = false
 
     /**
      * Called when the activity is starting
@@ -73,6 +79,28 @@ class MainActivity :
         mAdapter = PlaceListAdapter(this)
         mRecyclerView.adapter = mAdapter
 
+        // Setup initial geofence preference
+        val geofencesSwitch = findViewById(R.id.enable_switch) as Switch
+        mGeofencesEnabled = getPreferences(Context.MODE_PRIVATE).getBoolean(
+                resources.getString(R.string.pref_enable_geofences_key),
+                resources.getBoolean(R.bool.pref_enable_geofences_default)
+        )
+
+        geofencesSwitch.isChecked = mGeofencesEnabled
+        geofencesSwitch.setOnCheckedChangeListener { button, checked ->
+            if (checked) {
+                mGeofencing.registerAllGeofences()
+            } else {
+                mGeofencing.unregisterAllGeofences()
+            }
+            Log.e(TAG, "Setting geofences preference")
+            getPreferences(Context.MODE_PRIVATE).edit().putBoolean(
+                    getString(R.string.pref_enable_geofences_key),
+                    checked
+            ).apply()
+            Log.e(TAG, "Done setting geofences preference")
+        }
+
         // Setup privacy link
         val privacyLink = findViewById(R.id.privacy_link) as TextView
         privacyLink.movementMethod = LinkMovementMethod.getInstance()
@@ -84,6 +112,8 @@ class MainActivity :
                 .addApi(Places.GEO_DATA_API)
                 .enableAutoManage(this, this)
                 .build()
+
+        mGeofencing = Geofencing(context = this, googleApiClient = mGoogleClient)
     }
 
     override fun onResume() {
@@ -135,6 +165,10 @@ class MainActivity :
         val placesResult = Places.GeoDataApi.getPlaceById(mGoogleClient, *placeIds.toTypedArray())
         placesResult.setResultCallback { placeBuffer ->
             mAdapter.swapPlaces(placeBuffer)
+            mGeofencing.updateGeofencesList(placeBuffer)
+            if (mGeofencesEnabled) {
+                mGeofencing.registerAllGeofences()
+            }
         }
     }
 
