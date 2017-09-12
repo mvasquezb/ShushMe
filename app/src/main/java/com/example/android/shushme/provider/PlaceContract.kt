@@ -35,7 +35,7 @@ object PlaceContract {
         companion object {
 
             // TaskEntry content URI = base content URI + path
-            val CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLACES).build()
+            val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLACES).build()
 
             val TABLE_NAME = "places"
             val COLUMN_PLACE_ID = "placeID"
