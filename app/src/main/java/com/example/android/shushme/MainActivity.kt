@@ -17,6 +17,7 @@ package com.example.android.shushme
 */
 
 import android.app.Activity
+import android.app.NotificationManager
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -129,6 +130,15 @@ class MainActivity :
             locationPermissionCheckbox.isChecked = true
             locationPermissionCheckbox.isEnabled = false
         }
+        val ringerPermissions = findViewById(R.id.ringer_permission_checkbox) as CheckBox
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (android.os.Build.VERSION.SDK_INT >= 24 &&
+                !notificationManager.isNotificationPolicyAccessGranted) {
+            ringerPermissions.isChecked = false
+        } else {
+            ringerPermissions.isChecked = true
+            ringerPermissions.isEnabled = false
+        }
     }
 
     override fun onConnected(bundle: Bundle?) {
@@ -181,6 +191,14 @@ class MainActivity :
                 arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
                 PERMISSION_REQUEST_FINE_LOCATION
         )
+    }
+
+    /**
+     * Ringer permission checkbox click callback
+     */
+    fun onRingerPermissionClicked(view: View) {
+        val intent = Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
+        startActivity(intent)
     }
 
     /**
